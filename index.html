@@ -1,0 +1,50 @@
+<!-- This is the corresponding "starter code" for 05_Interpreting Geocoding Responses in Udacity
+and Google's Maps API Course, Lesson 2 -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Neighborhood Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <! -- link css -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- link JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- load Google API -->
+    <script async defer
+     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyB5MYKGdmNctMt99i0btlri53Jp3kc56NE&libraries=geometry&callback=initMap"></script>
+
+     <!-- link js file -->
+    <script src="maps.js"></script>
+
+    <!-- Bootstrap dependencies-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container-fluid"
+      <div class="row">
+        <!-- left hand search bar and list -->
+        <div class="col-md-3" id="leftColumn">
+          <h2>Seattle Locations</h2>
+          <!-- search bar -->
+           <form>
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search for a place..." title="Type in a location">
+            </div>
+          </form>
+
+          <!-- list -->
+          <ul id="locationList">
+          </ul>
+
+        </div>
+        <!-- place map in HTML -->
+        <div class="col-md-9" id="map"></div>
+      </div>
+    </div>
+  </body>
+</html>
