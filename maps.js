@@ -45,7 +45,7 @@ function initMap() {
 	}
 }
 
-
+// open marker info when clicking location from list in left panel
 function getInfoFromList(id){
 	var mark = markers[id];
 	populateInfoWindow(mark, win);
@@ -96,3 +96,19 @@ function populateInfoWindow(marker, infowindow){
           infowindow.open(map, marker);
 	}
 
+function filter() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("searchLocation");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("locationList");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+
+        }
+    }
+}
