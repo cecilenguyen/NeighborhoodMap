@@ -4,6 +4,10 @@ html, body {
 	padding: 0;
 }
 
+h2 {
+    color: white;
+}
+
 #leftColumn {
     height: 100%;
 }
@@ -19,3 +23,26 @@ html, body {
     width: 200px;
     height: 200px;
   }
+
+
+/* left column */
+
+#locationList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#locationList li {
+  border-bottom: 1px solid #ddd;
+  margin-top: -1px; /* Prevent double borders */
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  display: block;
+  cursor: pointer;
+}
+
+#locationList li:hover:not(.header) {
+  background-color: #eee;
+}

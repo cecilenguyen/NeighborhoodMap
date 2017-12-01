@@ -41,7 +41,7 @@ function initMap() {
 		});
 
 		// populate left column list
-		$("#locationList").append('<li id=' + i + ' onclick="getInfoFromList(this.id)"><a href="#">' + locations[i].title + '</a></li>');
+		$("#locationList").append('<li id=' + i + ' onclick="getInfoFromList(this.id)">' + locations[i].title + '</li>');
 	}
 }
 
@@ -97,14 +97,14 @@ function populateInfoWindow(marker, infowindow){
 	}
 
 function filter() {
-    var input, filter, ul, li, a, i;
+    var input, filter, ul, li, i;
     input = document.getElementById("searchLocation");
     filter = input.value.toUpperCase();
     ul = document.getElementById("locationList");
     li = ul.getElementsByTagName("li");
     for (i = 0; i < li.length; i++) {
-        a = li[i].getElementsByTagName("a")[0];
-        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+       // a = li[i].getElementsByTagName("a")[0];
+        if (li[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
             li[i].style.display = "";
         } else {
             li[i].style.display = "none";
