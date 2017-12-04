@@ -11,9 +11,13 @@ and Google's Maps API Course, Lesson 2 -->
 
     <!-- link JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- knockout -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+
     <!-- load Google API -->
     <script async defer
-     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyB5MYKGdmNctMt99i0btlri53Jp3kc56NE&libraries=geometry&callback=initMap"></script>
+     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyB5MYKGdmNctMt99i0btlri53Jp3kc56NE&libraries=geometry&callback=startApp"></script>
 
      <!-- link js file -->
     <script src="maps.js"></script>
@@ -32,11 +36,12 @@ and Google's Maps API Course, Lesson 2 -->
           <h2>Seattle Locations</h2>
           <!-- search bar -->
            <form class="well">
-              <input id="searchLocation" type="text" class="form-control" onkeyup="filter()" placeholder="Search for a place..." title="Type in a location">
+              <input id="searchLocation" type="text" class="form-control" data-bind="textInput: searched, valueUpdate: 'afterkeydown'" placeholder="Search for a place..." title="Type in a location">
           </form>
 
           <!-- list -->
-          <ul id="locationList">
+          <ul id="locationList" data-bind="foreach: filter">
+            <li data-bind="text: title"></li>
           </ul>
 
         </div>

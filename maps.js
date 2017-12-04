@@ -1,117 +1,123 @@
-var markers = [];
-var win;
+// global variables
+var map;
 
-// initialize map
-function initMap() {
-	// map constructor
-	var map = new google.maps.Map(document.getElementById('map'), {
-	  zoom: 13,
-	  center: {lat: 47.608013, lng: -122.335167}
-	});
+function AppViewModel() {
 
-	var largeInfowindow = new google.maps.InfoWindow();
-	// save it to global variable
-	win = largeInfowindow;
+	var self = this;
+	this.markers = [];
+	this.searched = ko.observable("");
 
-	var locations = [
-		{title: 'Pikes Place Market', location: {lat: 47.6101359, lng: -122.3420567}},
-		{title: 'Space Needle', location: {lat: 47.620423, lng: -122.349355}},
-		{title: 'Fremont Troll', location: {lat: 47.649682, lng: -122.347366}},
-		{title: 'Seattle Great Wheel', location: {lat: 47.606106, lng: -122.341530}},
-		{title: 'Olympic Sculpture Park', location: {lat: 47.616596, lng: -122.35531}}
-	]
+	// put marker info in infowindow
+	this.populateInfoWindow = function(marker, infowindow){
+			if(infowindow.marker != marker){
+				infowindow.marker = marker;
+				infowindow.setContent('<div>' + marker.title + '</div>');
+				infowindow.open(map, marker);
+				// make sure marker property cleared if infowindow is closed
+				infowindow.addListener('closeclick', function(){
+					infowindow = null;
+				});
+			}
 
-	for(var i = 0; i < locations.length; i++){
-		// get position and title
-		var position = locations[i].location;
-		var title = locations[i].title;
-		// create marker
-		var marker = new google.maps.Marker({
-			map: map,
-			position: position,
-			title: title,
-			animation: google.maps.Animation.DROP,
-			id: i
-		});
-		// push marker to marker array
-		markers.push(marker);
-		// onclick event to open infowindow for marker
-		marker.addListener('click', function(){
-			populateInfoWindow(this, largeInfowindow);
-		});
-
-		// populate left column list
-		$("#locationList").append('<li id=' + i + ' onclick="getInfoFromList(this.id)">' + locations[i].title + '</li>');
-	}
-}
-
-// open marker info when clicking location from list in left panel
-function getInfoFromList(id){
-	var mark = markers[id];
-	populateInfoWindow(mark, win);
-}
-
-// put marker info in infowindow
-function populateInfoWindow(marker, infowindow){
-		if(infowindow.marker != marker){
-			infowindow.marker = marker;
-			infowindow.setContent('<div>' + marker.title + '</div>');
-			infowindow.open(map, marker);
-			// make sure marker property cleared if infowindow is closed
-			infowindow.addListener('closeclick', function(){
-				infowindow = null;
-			});
+			// street view
+			var streetViewService = new google.maps.StreetViewService();
+	          var radius = 50;
+	          // In case the status is OK, which means the pano was found, compute the
+	          // position of the streetview image, then calculate the heading, then get a
+	          // panorama from that and set the options
+	          function getStreetView(data, status) {
+	            if (status == google.maps.StreetViewStatus.OK) {
+	              var nearStreetViewLocation = data.location.latLng;
+	              var heading = google.maps.geometry.spherical.computeHeading(
+	                nearStreetViewLocation, marker.position);
+	                infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+	                var panoramaOptions = {
+	                  position: nearStreetViewLocation,
+	                  pov: {
+	                    heading: heading,
+	                    pitch: 30
+	                  }
+	                };
+	              var panorama = new google.maps.StreetViewPanorama(
+	                document.getElementById('pano'), panoramaOptions);
+	            } else {
+	              infowindow.setContent('<div>' + marker.title + '</div>' +
+	                '<div>No Street View Found</div>');
+	            }
+	          }
+	          // Use streetview service to get the closest streetview image within
+	          // 50 meters of the markers position
+	          streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+	          // Open the infowindow on the correct marker.
+	          infowindow.open(map, marker);
 		}
 
-		// street view
-		var streetViewService = new google.maps.StreetViewService();
-          var radius = 50;
-          // In case the status is OK, which means the pano was found, compute the
-          // position of the streetview image, then calculate the heading, then get a
-          // panorama from that and set the options
-          function getStreetView(data, status) {
-            if (status == google.maps.StreetViewStatus.OK) {
-              var nearStreetViewLocation = data.location.latLng;
-              var heading = google.maps.geometry.spherical.computeHeading(
-                nearStreetViewLocation, marker.position);
-                infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
-                var panoramaOptions = {
-                  position: nearStreetViewLocation,
-                  pov: {
-                    heading: heading,
-                    pitch: 30
-                  }
-                };
-              var panorama = new google.maps.StreetViewPanorama(
-                document.getElementById('pano'), panoramaOptions);
-            } else {
-              infowindow.setContent('<div>' + marker.title + '</div>' +
-                '<div>No Street View Found</div>');
-            }
-          }
-          // Use streetview service to get the closest streetview image within
-          // 50 meters of the markers position
-          streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-          // Open the infowindow on the correct marker.
-          infowindow.open(map, marker);
-	}
 
-function filter() {
-    var input, filter, ul, li, i;
-    input = document.getElementById("searchLocation");
-    filter = input.value.toUpperCase();
-    ul = document.getElementById("locationList");
-    li = ul.getElementsByTagName("li");
-    for (i = 0; i < li.length; i++) {
-    	// put markers back if match search
-    	markers[i].setVisible(true);
-       // a = li[i].getElementsByTagName("a")[0];
-        if (li[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
-        } else {
-            li[i].style.display = "none";
-            // hide markers that don't match search
-            markers[i].setVisible(false);
-        }
-    }
+	// initialize map
+	this.initMap = function() {
+
+		// map constructor
+		map = new google.maps.Map(document.getElementById('map'), {
+		  zoom: 13,
+		  center: {lat: 47.608013, lng: -122.335167}
+		});
+
+		this.largeInfowindow = new google.maps.InfoWindow();
+
+		var locations = [
+			{title: 'Pikes Place Market', location: {lat: 47.6101359, lng: -122.3420567}},
+			{title: 'Space Needle', location: {lat: 47.620423, lng: -122.349355}},
+			{title: 'Fremont Troll', location: {lat: 47.649682, lng: -122.347366}},
+			{title: 'Seattle Great Wheel', location: {lat: 47.606106, lng: -122.341530}},
+			{title: 'Olympic Sculpture Park', location: {lat: 47.616596, lng: -122.35531}}
+		]
+
+		for(var i = 0; i < locations.length; i++){
+			// get position and title
+			var position = locations[i].location;
+			var title = locations[i].title;
+			// create marker
+			var marker = new google.maps.Marker({
+				map: map,
+				position: position,
+				title: title,
+				animation: google.maps.Animation.DROP,
+				id: i
+			});
+			// push marker to marker array
+			this.markers.push(marker);
+			// onclick event to open infowindow for marker
+			marker.addListener('click', function(){
+				self.populateInfoWindow(this, self.largeInfowindow);
+			});
+
+		}
+	};
+
+	// open marker info when clicking location from list in left panel
+	// function getInfoFromList(id){
+	// 	var mark = markers[id];
+	// 	populateInfoWindow(mark, win);
+	// }
+	this.initMap();
+
+	this.filter = ko.computed(function() {
+			var filtered = [];
+		    for (i = 0; i < this.markers.length; i++) {
+		        if (this.markers[i].title.toUpperCase().indexOf(this.searched().toUpperCase()) > -1) {
+		            this.markers[i].setVisible(true);
+		            filtered.push(this.markers[i]);
+		        } else {
+		            this.markers[i].setVisible(false);
+		        }
+		    }
+		console.log(filtered);
+		return filtered;    
+	}, this);
+
+
+}
+
+function startApp() {
+    ko.applyBindings(new AppViewModel());
 }
