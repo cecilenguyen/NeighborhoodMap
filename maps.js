@@ -106,8 +106,10 @@ function AppViewModel() {
 
 	// filter list of places and hide markers
 	this.filter = ko.computed(function() {
+		this.largeInfowindow.close();
 		var filtered = [];
 	    for (i = 0; i < this.markers.length; i++) {
+
 	        if (this.markers[i].title.toUpperCase().indexOf(this.searched().toUpperCase()) > -1) {
 	            this.markers[i].setVisible(true);
 	            filtered.push(this.markers[i]);
