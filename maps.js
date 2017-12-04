@@ -9,6 +9,7 @@ function AppViewModel() {
 
 	// put marker info in infowindow
 	this.populateInfoWindow = function(marker, infowindow){
+			
 			if(infowindow.marker != marker){
 				infowindow.marker = marker;
 				infowindow.setContent('<div>' + marker.title + '</div>');
@@ -87,31 +88,33 @@ function AppViewModel() {
 			// push marker to marker array
 			this.markers.push(marker);
 			// onclick event to open infowindow for marker
-			marker.addListener('click', function(){
-				self.populateInfoWindow(this, self.largeInfowindow);
-			});
+			marker.addListener('click', self.openMarker);
 
 		}
-	};
+	}
 
-	// open marker info when clicking location from list in left panel
-	// function getInfoFromList(id){
-	// 	var mark = markers[id];
-	// 	populateInfoWindow(mark, win);
-	// }
+	// open marker details from left panel list
+	this.openMarker = function() {
+		self.populateInfoWindow(this, self.largeInfowindow);
+		this.setAnimation(google.maps.Animation.BOUNCE);
+			setTimeout((function() {
+        	this.setAnimation(null);
+    	}).bind(this), 800);
+	}
+
 	this.initMap();
 
+	// filter list of places and hide markers
 	this.filter = ko.computed(function() {
-			var filtered = [];
-		    for (i = 0; i < this.markers.length; i++) {
-		        if (this.markers[i].title.toUpperCase().indexOf(this.searched().toUpperCase()) > -1) {
-		            this.markers[i].setVisible(true);
-		            filtered.push(this.markers[i]);
-		        } else {
-		            this.markers[i].setVisible(false);
-		        }
-		    }
-		console.log(filtered);
+		var filtered = [];
+	    for (i = 0; i < this.markers.length; i++) {
+	        if (this.markers[i].title.toUpperCase().indexOf(this.searched().toUpperCase()) > -1) {
+	            this.markers[i].setVisible(true);
+	            filtered.push(this.markers[i]);
+	        } else {
+	            this.markers[i].setVisible(false);
+	        }
+	    }
 		return filtered;    
 	}, this);
 
