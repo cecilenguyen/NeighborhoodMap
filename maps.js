@@ -4,8 +4,6 @@ var map;
 function AppViewModel() {
 
 	var self = this;
-	this.markers = [];
-	this.searched = ko.observable("");
 
 	// put marker info in infowindow
 	this.populateInfoWindow = function(marker, infowindow){
@@ -20,6 +18,32 @@ function AppViewModel() {
 				});
 			}
 
+			
+			// foursquare api
+            clientID = "PVY15A1THVOBNAJETF2AZDRFGIY5YJKARWIAU2YWOIS2UQWH";
+            clientSecret = "XPETPWZCF0P45QLZOYUBOY5W55SPP1JYSJSEL00YKK0PTON2";
+            var url = 'https://api.foursquare.com/v2/venues/' + marker.venue + '?client_id='+ clientID +'&client_secret=' + clientSecret + '&v=20171204'
+			$.getJSON(url , function(data) {
+			  var res = data.response.venue;
+			  var name = res.name;
+			  var address = res.location.address;
+			  var city = res.location.city;
+			  var state = res.location.state;
+			  var zipcode = res.location.postalCode;
+
+			  foursquare = '<div><p><b>' + name + '</b></p>' +
+			  '<p>Address: ' + address + '</p>' +
+			  '<p>' + city + ', ' + state + '</p>' +
+			  '<p>' + zipcode + '</p></div>'
+
+			  // Use streetview service to get the closest streetview image within
+	          // 50 meters of the markers position
+	          streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+			})
+			  .fail(function() {
+			    alert( "Could not get venue information from Foursquare. Please refresh and try again." );
+			  });
+
 			// street view
 			var streetViewService = new google.maps.StreetViewService();
 	          var radius = 50;
@@ -31,7 +55,7 @@ function AppViewModel() {
 	              var nearStreetViewLocation = data.location.latLng;
 	              var heading = google.maps.geometry.spherical.computeHeading(
 	                nearStreetViewLocation, marker.position);
-	                infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+	                infowindow.setContent(foursquare + '</div><div id="pano"></div>');
 	                var panoramaOptions = {
 	                  position: nearStreetViewLocation,
 	                  pov: {
@@ -46,15 +70,14 @@ function AppViewModel() {
 	                '<div>No Street View Found</div>');
 	            }
 	          }
-	          // Use streetview service to get the closest streetview image within
-	          // 50 meters of the markers position
-	          streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+	         
 	          // Open the infowindow on the correct marker.
 	          infowindow.open(map, marker);
 		}
 
 
 	// initialize map
+	this.markers = [];
 	this.initMap = function() {
 
 		// map constructor
@@ -66,22 +89,24 @@ function AppViewModel() {
 		this.largeInfowindow = new google.maps.InfoWindow();
 
 		var locations = [
-			{title: 'Pikes Place Market', location: {lat: 47.6101359, lng: -122.3420567}},
-			{title: 'Space Needle', location: {lat: 47.620423, lng: -122.349355}},
-			{title: 'Fremont Troll', location: {lat: 47.649682, lng: -122.347366}},
-			{title: 'Seattle Great Wheel', location: {lat: 47.606106, lng: -122.341530}},
-			{title: 'Olympic Sculpture Park', location: {lat: 47.616596, lng: -122.35531}}
+			{title: 'Pike Place Market', location: {lat: 47.6101359, lng: -122.3420567}, venue: '427ea800f964a520b1211fe3'},
+			{title: 'Space Needle', location: {lat: 47.620423, lng: -122.349355}, venue: '416dc180f964a5209b1d1fe3'},
+			{title: 'Fremont Troll', location: {lat: 47.649682, lng: -122.347366}, venue: '49de874bf964a5206c601fe3'},
+			{title: 'Seattle Great Wheel', location: {lat: 47.606106, lng: -122.341530}, venue: '4fbfa89ee4b0fddeca5b5cef'},
+			{title: 'Olympic Sculpture Park', location: {lat: 47.616596, lng: -122.35531}, venue: '45b348a3f964a520a9411fe3'}
 		]
 
 		for(var i = 0; i < locations.length; i++){
 			// get position and title
 			var position = locations[i].location;
 			var title = locations[i].title;
+			var venue = locations[i].venue;
 			// create marker
 			var marker = new google.maps.Marker({
 				map: map,
 				position: position,
 				title: title,
+				venue: venue,
 				animation: google.maps.Animation.DROP,
 				id: i
 			});
@@ -102,9 +127,13 @@ function AppViewModel() {
     	}).bind(this), 800);
 	}
 
+	// initialize map
 	this.initMap();
 
+
 	// filter list of places and hide markers
+	this.searched = ko.observable("");
+
 	this.filter = ko.computed(function() {
 		this.largeInfowindow.close();
 		var filtered = [];
