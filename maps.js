@@ -32,7 +32,7 @@ function AppViewModel() {
 			  var zipcode = res.location.postalCode;
 
 			  foursquare = '<div><p><b>' + name + '</b></p>' +
-			  '<p>Address: ' + address + '</p>' +
+			  '<p>' + address + '</p>' +
 			  '<p>' + city + ', ' + state + '</p>' +
 			  '<p>' + zipcode + '</p></div>'
 
@@ -150,6 +150,10 @@ function AppViewModel() {
 	}, this);
 
 
+}
+
+function handleError() {
+	alert('Could not load Google API. Please refresh and try again.');
 }
 
 function startApp() {
